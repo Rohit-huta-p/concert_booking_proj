@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
 import axiosInstance from '../axiosInstance';
+import { useNavigate } from 'react-router-dom';
 
-const BookModal = ({concertId, title}) => {
+const BookModal = ({concertId, title, setIsBookModalOpen}) => {
     const [ticketCount, setTicketCount] = useState(1);
 
-
+    const navigate = useNavigate();
     const bookConcert = async () => {
         try {
             
             const res = await axiosInstance.post("api/auth/bookconcert", {concertId, ticketCount});
-            console.log(res.data);
+            setIsBookModalOpen(false);
         } catch (error) {
             console.log(error);
             
@@ -30,7 +31,10 @@ const BookModal = ({concertId, title}) => {
             </div>
             <button className='bg-blue-500 w-full text-white px-4 py-2 mt-5 rounded-lg cursor-pointer'
             onClick={bookConcert}
-            >Book</button>
+            >
+                Book
+            </button>
+            
 
         </div>
        

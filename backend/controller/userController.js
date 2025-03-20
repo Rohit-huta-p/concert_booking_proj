@@ -51,6 +51,11 @@ const bookConcert = async (req, res) => {
         if (!concert) {
             return res.status(404).json({ error: 'Concert not found' });
         }
+        // find if the concertId already exists in bookedConcerts
+        const existingConcert = user.bookedConcerts.find((concert) => concert.concertId === concertId);
+        if (existingConcert) {
+            return res.status(400).json({ error: 'Concert already booked' });
+        }
         user.bookedConcerts.push({ concertId, noOfTickets: ticketCount });
         await user.save();
         res.status(200).json({message: "Concert Booked Successfully" , user});
@@ -76,10 +81,38 @@ const get_all_booked_concerts = async (req, res) => {
     }
 }
 
+
+const edit_tickets = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { concertId, ticketCount } = req.body;
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        console.log(user.bookedConcerts);
+        console.log(concertId);
+        
+        
+        const concert = user.bookedConcerts.find((concert) => concert.concertId.toString() === concertId);
+        if (!concert) {
+            return res.status(404).json({ error: 'Concert not found' });
+        }
+        concert.noOfTickets = ticketCount;
+        await user.save();
+        res.status(200).json({message: "Tickets Updated Successfully" , user});
+        console.log("Tickets Updated Successfully");
+        
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}   
+
 module.exports = {
     registerUser,
     login,
     bookConcert,
-    get_all_booked_concerts
+    get_all_booked_concerts,
+    edit_tickets
 
 }
